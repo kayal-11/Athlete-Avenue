@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SportFolio - Sports Portfolio Feed</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-content">
+        <div class="nav-left">
+          <div class="logo">Athlete Avenue</div>
+          <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="home"><i class="fas fa-home"></i><span>Home</span></button>
+            <button class="nav-tab" data-tab="networks"><i class="fas fa-users"></i><span>Networks</span></button>
+            <button class="nav-tab" data-tab="sponsorship"><i class="fas fa-dollar-sign"></i><span>Sponsorship</span></button>
+          </div>
+        </div>
+        <div class="nav-right">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search athletes, sports...">
+          </div>
+          <i class="fas fa-bell nav-icon"></i>
+          <i class="fas fa-comment nav-icon"></i>
+          <div class="avatar-circle" id="logout-btn">A</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    <div class="content-grid">
+      <!-- Left Sidebar -->
+      <div class="left-sidebar">
+        <div class="profile-card">
+          <div class="profile-banner"></div>
+          <div class="profile-content">
+            <div class="profile-header">
+              <div class="profile-avatar">+</div>
+              <h2 class="profile-name">Your Name</h2>
+              <p class="profile-title"><span id="profileSportRole"></span></p>
+            </div>
+            <div class="profile-stats">
+              <div class="stat-row"><span class="stat-label">Profile Views</span><span class="stat-value">1,234</span></div>
+              <div class="stat-row"><span class="stat-label">Connections</span><span class="stat-value">567</span></div>
+            </div>
+            <div class="profile-sports">
+              <h3 class="section-title">Sports</h3>
+              <div class="tags"><span id="profileSportCategory" class="tag tag-blue"></span></div>
+            </div>
+            <button class="btn-primary">View Profile</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Feed -->
+      <div class="center-feed">
+        <div class="create-post-card">
+          <div class="create-post-content">
+            <div class="post-avatar">👤</div>
+            <div class="post-input-area">
+              <textarea id="postText" placeholder="Share your sports journey..." rows="3"></textarea>
+              <div id="imagePreview" style="display:none; margin-top:10px;">
+                <img id="previewImg" style="max-width:100%; border-radius:10px;">
+              </div>
+              <div class="post-actions">
+                <div class="post-icons">
+                  <input type="file" id="postImage" accept="image/*" style="display:none;">
+                  <button class="icon-btn" id="imageUploadBtn"><i class="fas fa-image"></i></button>
+                  <button class="icon-btn"><i class="fas fa-video"></i></button>
+                  <button class="icon-btn"><i class="fas fa-calendar"></i></button>
+                </div>
+                <button id="postBtn" class="btn-primary" disabled>Post</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="postsFeed"></div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="right-sidebar">
+        <div class="sidebar-card">
+          <h3 class="card-title">Trending in Sports</h3>
+          <div class="trending-list">
+            <div class="trending-item"><p class="trending-tag">#Olympics2024</p><p class="trending-posts">1.2K posts</p></div>
+            <div class="trending-item"><p class="trending-tag">#FitnessGoals</p><p class="trending-posts">856 posts</p></div>
+            <div class="trending-item"><p class="trending-tag">#TrainingTips</p><p class="trending-posts">645 posts</p></div>
+            <div class="trending-item"><p class="trending-tag">#SportsNutrition</p><p class="trending-posts">534 posts</p></div>
+            <div class="trending-item"><p class="trending-tag">#AthleteLife</p><p class="trending-posts">423 posts</p></div>
+          </div>
+          <!--live status-->
+          <!-- Live Sports Feed Widget -->
+          <div class="sidebar-card" id="liveSportsCard">
+            <h3 class="card-title">Live Match Updates</h3>
+            <div id="liveSportsWidget" class="iframe-wrapper">
+              <iframe
+                src="https://www.livescore.in/embed/football/"
+                frameborder="0"
+                width="100%"
+                height="400"
+                scrolling="no"
+                allowfullscreen
+                style="border:none; border-radius:10px;"
+              ></iframe>
+            </div>
+            <p class="widget-note">⚡ Powered by ScoreBat — auto-updating live scores.</p>
+          </div>
+
+
+
+          <div class="suggested-section">
+            <h3 class="card-title">Suggested Athletes</h3>
+            <div class="athletes-list">
+              <div class="athlete-item">
+                <div class="athlete-info">
+                  <div class="athlete-avatar">🏃</div>
+                  <div><p class="athlete-name">Mike Thompson</p><p class="athlete-sport">Track & Field</p></div>
+                </div>
+                <button class="btn-follow">Follow</button>
+              </div>
+              <div class="athlete-item">
+                <div class="athlete-info">
+                  <div class="athlete-avatar">🤸</div>
+                  <div><p class="athlete-name">Lisa Wang</p><p class="athlete-sport">Gymnastics</p></div>
+                </div>
+                <button class="btn-follow">Follow</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <!-- Firebase Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import {
+      getFirestore, collection, addDoc, onSnapshot, query, orderBy,
+      serverTimestamp, doc, updateDoc, getDoc, arrayUnion, arrayRemove
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBAfGpO2rFcS1oq1B49aq_FEol2tb8xi4E",
+      authDomain: "athlete--avenue.firebaseapp.com",
+      projectId: "athlete--avenue",
+      storageBucket: "athlete--avenue.appspot.com",
+      messagingSenderId: "122207840107",
+      appId: "1:122207840107:web:84fa6abba2fd16417cce2e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const postText = document.getElementById("postText");
+    const postBtn = document.getElementById("postBtn");
+    const postsFeed = document.getElementById("postsFeed");
+    const postImage = document.getElementById("postImage");
+    const imageUploadBtn = document.getElementById("imageUploadBtn");
+    const previewImg = document.getElementById("previewImg");
+    const imagePreview = document.getElementById("imagePreview");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    // enable post button
+    postText.addEventListener("input", () => postBtn.disabled = postText.value.trim() === "");
+
+    imageUploadBtn.addEventListener("click", () => postImage.click());
+    postImage.addEventListener("change", () => {
+      const file = postImage.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          previewImg.src = e.target.result;
+          imagePreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      } else imagePreview.style.display = "none";
+    });
+
+    // add post
+    postBtn.addEventListener("click", async () => {
+      if (!auth.currentUser) return alert("Please log in again.");
+      const text = postText.value.trim();
+      const file = postImage.files[0];
+      let imageUrl = "";
+
+      try {
+        /*if (file) {
+          console.log("Uploading to Firebase Storage...");
+          const fileRef = ref(storage, `posts/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
+          await uploadBytes(fileRef, file);
+          console.log("Upload complete, fetching download URL...");
+          imageUrl = await getDownloadURL(fileRef);
+          console.log("Got image URL:", imageUrl);
+        }*/
+       if (file) {
+        console.warn("Image upload skipped temporarily (CORS issue).");
+        imageUrl = "https://via.placeholder.com/150"; // dummy placeholder  
+      }
+
+
+        if (text || imageUrl) {
+          await addDoc(collection(db, "posts"), {
+            author: localStorage.getItem("athlete_name") || "Athlete",
+            sport: localStorage.getItem("athlete_sport") || "",
+            authorId: auth.currentUser.uid,
+            content: text,
+            imageUrl,
+            createdAt: serverTimestamp(),
+            likes: [],
+            comments: [],
+            reposts: 0
+          });
+          postText.value = "";
+          postImage.value = "";
+          imagePreview.style.display = "none";
+          postBtn.disabled = true;
+        }
+      } catch (err) {
+        console.error("Post error:", err);
+      }
+    });
+
+    // toggle like
+    async function toggleLike(postId, userId, likes) {
+      const refDoc = doc(db, "posts", postId);
+      if (likes.includes(userId)) await updateDoc(refDoc, { likes: arrayRemove(userId) });
+      else await updateDoc(refDoc, { likes: arrayUnion(userId) });
+    }
+
+    // add comment
+    async function addComment(postId, text, userName) {
+      const refDoc = doc(db, "posts", postId);
+      await updateDoc(refDoc, {
+        comments: arrayUnion({ author: userName, text, time: Date.now() })
+      });
+    }
+
+    // repost
+    async function repost(postId) {
+      const refDoc = doc(db, "posts", postId);
+      const snap = await getDoc(refDoc);
+      if (snap.exists()) {
+        const post = snap.data();
+        await addDoc(collection(db, "posts"), {
+          author: localStorage.getItem("athlete_name") || "Athlete",
+          sport: localStorage.getItem("athlete_sport") || "",
+          authorId: auth.currentUser.uid,
+          content: "🔁 Repost: " + post.content,
+          imageUrl: post.imageUrl || "",
+          createdAt: serverTimestamp(),
+          likes: [],
+          comments: [],
+          reposts: 0
+        });
+        await updateDoc(refDoc, { reposts: (post.reposts || 0) + 1 });
+      }
+    }
+
+    // live feed
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      postsFeed.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const post = docSnap.data();
+        const postId = docSnap.id;
+        const likesCount = post.likes?.length || 0;
+        const repostCount = post.reposts || 0;
+
+        let commentsHTML = "";
+        (post.comments || []).slice(-3).forEach((c) => {
+          commentsHTML += `<div class='comment'><strong>${c.author}:</strong> ${c.text}</div>`;
+        });
+
+        postsFeed.innerHTML += `
+          <div class="post-card">
+            <div class="post-header">
+              <div class="post-author">
+                <div class="post-author-avatar">🏅</div>
+                <div class="post-author-info">
+                  <h3>${post.author}</h3>
+                  <p class="post-time">${post.sport || ""}</p>
+                </div>
+              </div>
+            </div>
+            <p class="post-content">${post.content || ""}</p>
+            ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image">` : ""}
+            <div class="post-actions">
+              <button class="like-btn" data-id="${postId}">❤️ ${likesCount}</button>
+              <button class="comment-btn" data-id="${postId}">💬 ${post.comments?.length || 0}</button>
+              <button class="repost-btn" data-id="${postId}">🔁 ${repostCount}</button>
+            </div>
+            <div class="comments-section" id="comments-${postId}">
+              ${commentsHTML}
+              <div class="add-comment">
+                <input type="text" placeholder="Add a comment..." class="comment-input" id="input-${postId}">
+                <button class="send-comment" data-id="${postId}">Send</button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      // bind actions
+      snapshot.forEach((docSnap) => {
+        const postId = docSnap.id;
+        const post = docSnap.data();
+
+        document.querySelector(`.like-btn[data-id="${postId}"]`).onclick = () =>
+          toggleLike(postId, auth.currentUser.uid, post.likes || []);
+
+        document.querySelector(`.repost-btn[data-id="${postId}"]`).onclick = () =>
+          repost(postId);
+
+        document.querySelector(`.send-comment[data-id="${postId}"]`).onclick = async () => {
+          const input = document.getElementById(`input-${postId}`);
+          const text = input.value.trim();
+          if (text) {
+            await addComment(postId, text, localStorage.getItem("athlete_name") || "User");
+            input.value = "";
+          }
+        };
+      });
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location = "index.html";
+    });
+
+    onAuthStateChanged(auth, (user) => { if (!user) window.location = "index.html"; });
+
+    document.querySelector(".profile-name").innerText = localStorage.getItem("athlete_name") || "Your Name";
+    const sport = localStorage.getItem("athlete_sport") || "Sport";
+    document.getElementById("profileSportRole").innerText = `Professional ${sport} Player`;
+    document.getElementById("profileSportCategory").innerText = sport;
+  </script>
+  <script>
+    document.querySelector('[data-tab="sponsorship"]').onclick = () => {
+      window.location = "sponsorship.html";
+    };
+  </script>
+
+</body>
+</html>

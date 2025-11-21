@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Athlete Avenue - Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="gradient-bg">
+  <div class="card">
+
+    <div class="logo"><span>🏆</span> Athlete Avenue</div>
+
+    <h2>Welcome Back</h2>
+
+    <!-- Error display -->
+    <div id="login-error" class="error"></div>
+
+    <!-- Login Inputs -->
+    <input id="login-email" type="email" placeholder="Email">
+    <input id="login-password" type="password" placeholder="Password">
+
+    <!-- Login Button -->
+    <button id="login-btn">Login</button>
+
+    <!-- Switch to Signup -->
+    <div class="switch">
+      <span>Don't have an account?</span>
+      <a href="signup.html">Sign Up</a>
+    </div>
+
+  </div>
+
+  <!-- Load App Logic -->
+  <script type="module" src="app.js"></script>
+
+  <!-- Fix: Clear leftover localStorage from previous users -->
+  <script>
+    // Prevent wrong user's data from appearing on dashboard after logout
+    localStorage.removeItem("athlete_name");
+    localStorage.removeItem("athlete_sport");
+  </script>
+
+</body>
+</html>

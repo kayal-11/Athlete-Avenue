@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sponsorship | Athlete Avenue</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-content">
+        <div class="nav-left">
+          <div class="logo">Athlete Avenue</div>
+
+          <div class="nav-tabs">
+            <button class="nav-tab" onclick="window.location='dashboard.html'">
+              <i class="fas fa-home"></i><span>Home</span>
+            </button>
+            <button class="nav-tab" onclick="window.location='dashboard.html#networks'">
+              <i class="fas fa-users"></i><span>Networks</span>
+            </button>
+            <button class="nav-tab active">
+              <i class="fas fa-dollar-sign"></i><span>Sponsorship</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="nav-right">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input id="globalSearch" type="text" placeholder="Search sponsors, brands...">
+          </div>
+          <i class="fas fa-bell nav-icon"></i>
+          <i class="fas fa-comment nav-icon"></i>
+          <div class="avatar-circle" id="goDashboard">A</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-container">
+    <div class="content-grid">
+
+      <!-- Left Sidebar -->
+      <div class="left-sidebar">
+        <div class="profile-card">
+          <div class="profile-banner"></div>
+          <div class="profile-content">
+            <div class="profile-header">
+              <div class="profile-avatar">+</div>
+              <h2 class="profile-name">Your Name</h2>
+              <p class="profile-title" id="profileSportRole"></p>
+            </div>
+
+            <div class="profile-sports">
+              <h3 class="section-title">Sports</h3>
+              <div class="tags">
+                <span id="profileSportCategory" class="tag tag-blue"></span>
+              </div>
+            </div>
+
+            <button class="btn-primary" id="btnNewApplication">New Application</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Feed -->
+      <div class="center-feed">
+
+        <div class="create-post-card">
+          <h2 style="margin:0 0 6px 0; color:#2563eb;">Sponsorship Opportunities</h2>
+          <p style="margin:0;color:#555;">Browse curated sponsorships and apply.</p>
+        </div>
+
+        <!-- Offers -->
+        <div id="offersList" class="post-card" style="padding:12px;"></div>
+
+        <!-- My Applications (removed) -->
+        <div class="post-card" id="myApplications" style="display:none;"></div>
+
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="right-sidebar">
+        <div class="sidebar-card">
+          <h3 class="card-title">Recommended Brands</h3>
+          <div id="brandsList">
+            <div class="trending-item"><p class="trending-tag">Adidas India</p><p class="trending-posts">Looking for: Runners, Footballers</p></div>
+            <div class="trending-item"><p class="trending-tag">Decathlon Sports</p><p class="trending-posts">Looking for: Fitness Athletes</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="applicationModal" style="
+      position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.45); z-index: 60;">
+    <div style="width:92%; max-width:720px; background:#fff; border-radius:12px; padding:18px;">
+      <h3 style="margin-top:0; color:#2563eb;">Apply for Sponsorship</h3>
+
+      <div style="display:flex; gap:1rem; flex-direction:column;">
+        <label>Brand <input id="formBrand" placeholder="Brand name" /></label>
+        <label>Offer Name <input id="formOffer" placeholder="Offer / Program" /></label>
+        <label>Why you? <textarea id="formWhy" rows="4" placeholder="Why are you a great fit?"></textarea></label>
+        <label>Achievements <input id="formAchievements" placeholder="Key achievements" /></label>
+        <label>Social / Portfolio Link <input id="formLinks" placeholder="Instagram / YouTube" /></label>
+        <label>Attach (optional) <input type="file" id="formFile" accept=".jpg,.png,.pdf,.zip,.doc,.docx" /></label>
+
+        <div style="display:flex; gap:10px;">
+          <button id="submitApplication" class="btn-primary" style="flex:1;">Submit</button>
+          <button id="cancelApplication" class="btn-primary" style="flex:1; background:#e5e7eb; color:#111;">Cancel</button>
+        </div>
+        <div id="appStatus" style="color:#6b7280; font-size:0.95rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import {
+      getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBAfGpO2rFcS1oq1B49aq_FEol2tb8xi4E",
+      authDomain: "athlete--avenue.firebaseapp.com",
+      projectId: "athlete--avenue",
+      storageBucket: "athlete--avenue.appspot.com",
+      messagingSenderId: "122207840107",
+      appId: "1:122207840107:web:84fa6abba2fd16417cce2e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const offersList = document.getElementById('offersList');
+    const applicationModal = document.getElementById('applicationModal');
+
+    const btnNewApplication = document.getElementById('btnNewApplication');
+    const submitApplication = document.getElementById('submitApplication');
+    const cancelApplication = document.getElementById('cancelApplication');
+
+    const formBrand = document.getElementById('formBrand');
+    const formOffer = document.getElementById('formOffer');
+    const formWhy = document.getElementById('formWhy');
+    const formAchievements = document.getElementById('formAchievements');
+    const formLinks = document.getElementById('formLinks');
+    const formFile = document.getElementById('formFile');
+    const appStatus = document.getElementById('appStatus');
+
+    let currentOffer = null;
+    let currentUser = null;
+
+    /* SAMPLE OFFERS */
+    const sampleOffers = [
+      { id: 'offer_nike_001', brand: 'Nike Sports', title: 'Regional Athlete Support', reward: '₹50k - ₹2L', perks: ['Kits', 'Media'] },
+      { id: 'offer_redbull_001', brand: 'Red Bull', title: 'Travel & Event Support', reward: 'Travel + Promo', perks: ['Event Access', 'Media'] },
+      { id: 'offer_decathlon_001', brand: 'Decathlon', title: 'Gear Sponsorship', reward: 'Product + Stipend', perks: ['Product Kits'] }
+    ];
+
+    function renderOffers() {
+      offersList.innerHTML = '';
+      sampleOffers.forEach(o => {
+        const div = document.createElement('div');
+        div.className = 'post-card';
+        div.innerHTML = `
+          <h3>${o.title}</h3>
+          <p><strong>Brand:</strong> ${o.brand}</p>
+          <p><strong>Offer:</strong> ${o.reward}</p>
+          <p style="color:#555;">${o.perks.join(' · ')}</p>
+          <div style="display:flex; gap:10px;">
+            <button class="btn-primary btnApply" data-id="${o.id}" style="flex:1;">Apply Now</button>
+          </div>
+        `;
+        offersList.appendChild(div);
+      });
+
+      document.querySelectorAll(".btnApply").forEach(btn => {
+        btn.onclick = () => {
+          const id = btn.getAttribute("data-id");
+          currentOffer = sampleOffers.find(x => x.id === id);
+          openApplicationModal(currentOffer);
+        };
+      });
+    }
+
+    function openApplicationModal(offer) {
+      formBrand.value = offer?.brand || '';
+      formOffer.value = offer?.title || '';
+      appStatus.innerText = '';
+      applicationModal.style.display = 'flex';
+    }
+
+    function closeApplicationModal() {
+      applicationModal.style.display = 'none';
+      formBrand.value = formOffer.value = formWhy.value = formAchievements.value = formLinks.value = '';
+      formFile.value = '';
+    }
+
+    cancelApplication.onclick = closeApplicationModal;
+    btnNewApplication.onclick = () => openApplicationModal();
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) return window.location = "index.html";
+      currentUser = user;
+
+      document.querySelector(".profile-name").innerText =
+        localStorage.getItem("athlete_name") || "Your Name";
+
+      const sport = localStorage.getItem("athlete_sport") || "Sport";
+      document.getElementById("profileSportRole").innerText = `Professional ${sport} Player`;
+      document.getElementById("profileSportCategory").innerText = sport;
+
+      renderOffers();
+
+      // REMOVE MY APPLICATIONS
+      document.getElementById("myApplications").style.display = "none";
+    });
+
+    submitApplication.onclick = async () => {
+      if (!currentUser) return;
+
+      const brand = formBrand.value.trim();
+      const offer = formOffer.value.trim();
+      const why = formWhy.value.trim();
+      const achievements = formAchievements.value.trim();
+      const links = formLinks.value.trim();
+      const file = formFile.files[0];
+
+      if (!brand || !offer || !why) {
+        appStatus.innerText = "Please fill Brand, Offer & Why.";
+        return;
+      }
+
+      submitApplication.disabled = true;
+      appStatus.innerText = "Submitting...";
+
+      try {
+        let fileUrl = "";
+        if (file) {
+          const storageRef = ref(storage, `sponsorship_applications/${currentUser.uid}/${Date.now()}_${file.name}`);
+          await uploadBytes(storageRef, file);
+          fileUrl = await getDownloadURL(storageRef);
+        }
+
+        await addDoc(collection(db, "sponsorship_applications"), {
+          athleteId: currentUser.uid,
+          athleteName: localStorage.getItem("athlete_name") || "Athlete",
+          athleteSport: localStorage.getItem("athlete_sport") || "",
+          brand,
+          offer,
+          why,
+          achievements,
+          links,
+          fileUrl,
+          status: "pending",
+          createdAt: serverTimestamp()
+        });
+
+        appStatus.innerText = "Application submitted!";
+
+        /* 🔵 CHANGE APPLY BUTTON → APPLIED */
+        const appliedBtn = document.querySelector(`button.btnApply[data-id="${currentOffer.id}"]`);
+        if (appliedBtn) {
+          appliedBtn.innerText = "Applied";
+          appliedBtn.style.background = "#9ca3af";
+          appliedBtn.style.cursor = "not-allowed";
+          appliedBtn.disabled = true;
+        }
+
+        setTimeout(() => { closeApplicationModal(); }, 900);
+
+      } catch (err) {
+        console.error(err);
+        appStatus.innerText = "Failed. Try again.";
+      }
+
+      submitApplication.disabled = false;
+    };
+
+    document.getElementById("goDashboard").onclick =
+      () => window.location = "dashboard.html";
+
+  </script>
+</body>
+</html>

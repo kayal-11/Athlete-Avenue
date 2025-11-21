@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Athlete Avenue - Profile Setup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="gradient-bg1">
+  <div class="card wide-card">
+    <h2>Complete Your Profile</h2>
+
+    <input id="profile-name" type="text" placeholder="Full Name">
+
+    <select id="profile-role">
+      <option value="">-- Select Role --</option>
+      <option value="athlete">Athlete</option>
+      <option value="non-athlete">Non-Athlete / Agent / Sponsor</option>
+    </select>
+
+    <input id="profile-sport" type="text" placeholder="Sport/Role">
+    <textarea id="profile-achievements" placeholder="Achievements..."></textarea>
+    <textarea id="profile-bio" placeholder="Bio (about yourself...)"></textarea>
+
+    <!-- Hidden proof section -->
+    <div id="proof-section" style="display:none; margin-top:10px;">
+      <label for="profile-proof"><b>Upload your Sports ID Proof:</b></label><br>
+      <input id="profile-proof" type="file" accept="image/*,.pdf">
+    </div>
+
+    <button id="profile-save">Complete Profile</button>
+  </div>
+
+  <script type="module" src="app.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const roleSelect = document.getElementById("profile-role");
+      const proofSection = document.getElementById("proof-section");
+      const proofInput = document.getElementById("profile-proof");
+      const saveBtn = document.getElementById("profile-save");
+
+      // ✅ Function to toggle proof visibility
+      function toggleProofSection() {
+        if (roleSelect.value === "athlete") {
+          proofSection.style.display = "block";
+        } else {
+          proofSection.style.display = "none";
+          proofInput.value = "";
+        }
+      }
+
+      // Run toggle when role changes
+      roleSelect.addEventListener("change", toggleProofSection);
+
+      // ✅ Also run once at page load (so default hides it)
+      toggleProofSection();
+
+      // ✅ Handle save
+      saveBtn.addEventListener("click", (e) => {
+        // inside saveBtn.addEventListener("click", ...)
+        const name = document.getElementById("profile-name").value.trim();
+        const sport = document.getElementById("profile-sport").value.trim();
+        localStorage.setItem("athlete_name", name);   // ✅ save name
+        localStorage.setItem("athlete_sport", sport); // ✅ save sport
+
+        e.preventDefault();
+
+        const role = roleSelect.value;
+
+        if (!role) {
+          alert("Please select your role before continuing.");
+          return;
+        }
+
+        if (role === "athlete") {
+          if (!proofInput.files.length) {
+            alert("Please upload your Sports ID proof.");
+            return;
+          }
+
+          const fileName = proofInput.files[0].name.toLowerCase();
+
+          if (fileName.includes("sports") || fileName.includes("id")) {
+            alert("✅ Proof verified successfully!");
+            window.location.href = "dashboard.html";
+          } else {
+            alert("❌ Sorry! your proof is invalid.");
+          }
+        } else {
+          alert("✅ Profile completed successfully!");
+          window.location.href = "dashboard.html";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
+

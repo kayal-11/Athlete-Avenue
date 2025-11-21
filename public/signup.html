@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Athlete Avenue - Signup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="gradient-bg">
+  <div class="card">
+    <div class="logo"><span>🏆</span> Athlete Avenue</div>
+    <h2>Create Account</h2>
+    <div id="signup-error" class="error"></div>
+    <select id="signup-role">
+      <option value="athlete">Athlete</option>
+      <option value="non-athlete">Non-Athlete</option>
+    </select>
+    <input id="signup-email" type="email" placeholder="Email">
+    <input id="signup-password" type="password" placeholder="Password">
+    <input id="signup-confirm" type="password" placeholder="Confirm Password">
+    <button id="signup-btn">Sign Up</button>
+    <div class="switch">
+      <span>Already have an account?</span>
+      <a href="index.html">Login</a>
+    </div>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
