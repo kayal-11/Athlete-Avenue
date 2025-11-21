@@ -33,13 +33,13 @@ import {
 // Firebase Config
 // =======================
 const firebaseConfig = {
-  apiKey: "AIzaSyBAfGpO2rFcS1oq1B49aq_FEol2tb8xi4E",
-  authDomain: "athlete--avenue.firebaseapp.com",
-  projectId: "athlete--avenue",
-  storageBucket: "athlete--avenue.appspot.com",
-  messagingSenderId: "122207840107",
-  appId: "1:122207840107:web:84fa6abba2fd16417cce2e",
-  measurementId: "G-QN461T0PR5"
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
+  measurementId: ""
 };
 
 const app = initializeApp(firebaseConfig);
